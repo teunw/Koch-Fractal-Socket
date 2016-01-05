@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="KochFractalServer.jar">
+    <output-path>$PROJECT_DIR$</output-path>
+    <root id="root">
+      <element id="archive" name="JSF31KochFractalFX - startup.jar">
+        <element id="module-output" name="JSF31KochFractalFX - startup" />
+      </element>
+      <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.4" />
+    </root>
+  </artifact>
+</component>
