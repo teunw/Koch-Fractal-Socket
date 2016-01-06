@@ -48,6 +48,7 @@ public class JSF31KochFractalFX extends Application {
     private Canvas kochPanel;
     private Button buttonIncreaseLevel, buttonDecreaseLevel;
     private ComboBox<Request.REQUEST_TYPE> connectionType;
+    private KochFractalSocketClient client;
 
     public JSF31KochFractalFX(String ip) {
         this.ip = ip;
@@ -163,21 +164,17 @@ public class JSF31KochFractalFX extends Application {
     }
 
     private void increaseLevelButtonActionPerformed(ActionEvent event) {
-        KochFractalSocketClient k = new KochFractalSocketClient(this, new Request(connectionType.getValue(), currentLevel));
-        k.requestEdges();
         currentLevel++;
+        drawSocket();
     }
 
     private void decreaseLevelButtonActionPerformed(ActionEvent event) {
-        KochFractalSocketClient k = new KochFractalSocketClient(this, new Request(connectionType.getValue(), currentLevel));
-        k.requestEdges();
         currentLevel--;
+        drawSocket();
     }
 
     private void fitFractalButtonActionPerformed(ActionEvent event) {
-        resetZoom();
-        KochFractalSocketClient k = new KochFractalSocketClient(this, new Request(connectionType.getValue(), currentLevel));
-        k.requestEdges();
+        drawSocket(Request.REQUEST_TYPE.WHOLE);
     }
 
     private void kochPanelMouseClicked(MouseEvent event) {
@@ -192,8 +189,7 @@ public class JSF31KochFractalFX extends Application {
             }
             zoomTranslateX = (int) (event.getX() - originalPointClickedX * zoom);
             zoomTranslateY = (int) (event.getY() - originalPointClickedY * zoom);
-            KochFractalSocketClient k = new KochFractalSocketClient(this, new Request(connectionType.getValue(), currentLevel));
-            k.requestEdges();
+            drawSocket(Request.REQUEST_TYPE.WHOLE);
         }
     }
 
@@ -202,8 +198,7 @@ public class JSF31KochFractalFX extends Application {
         zoomTranslateY = zoomTranslateY + event.getY() - lastDragY;
         lastDragX = event.getX();
         lastDragY = event.getY();
-        KochFractalSocketClient k = new KochFractalSocketClient(this, new Request(connectionType.getValue(), currentLevel));
-        k.requestEdges();
+        drawSocket(Request.REQUEST_TYPE.WHOLE);
     }
 
     private void kochPanelMousePressed(MouseEvent event) {
@@ -218,6 +213,16 @@ public class JSF31KochFractalFX extends Application {
         zoom = kpSize;
         zoomTranslateX = (kpWidth - kpSize) / 2.0;
         zoomTranslateY = (kpHeight - kpSize) / 2.0;
+    }
+
+    private void drawSocket() {
+        KochFractalSocketClient k = new KochFractalSocketClient(this, new Request(connectionType.getValue(), currentLevel));
+        k.requestEdges();
+    }
+
+    private void drawSocket(Request.REQUEST_TYPE request_type) {
+        KochFractalSocketClient k = new KochFractalSocketClient(this, new Request(request_type, currentLevel));
+        k.requestEdges();
     }
 
     private Edge edgeAfterZoomAndDrag(Edge e) {

@@ -1,10 +1,14 @@
 package nl.teunwillems.server;
 
+import com.sun.deploy.security.CachedCertificatesHelper;
+import nl.teunwillems.server.caching.CachingHandler;
+
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -17,9 +21,11 @@ public class KochFractalServer {
     public static int PORT = DEFAULT_PORT;
 
     private Executor executor;
+    private CachingHandler cachingHandler;
 
     public KochFractalServer() throws Exception {
         executor = Executors.newCachedThreadPool();
+        cachingHandler = new CachingHandler();
         startListening();
     }
 
@@ -34,34 +40,12 @@ public class KochFractalServer {
         ServerSocket serverSocket = new ServerSocket(PORT);
         for (; ; ) {
             Socket connectedSocket = serverSocket.accept();
-            executor.execute(new KochFractalRequestHandler(connectedSocket));
+            System.out.println("Client connected: " + connectedSocket.getInetAddress().getHostAddress());
+            executor.execute(new KochFractalRequestHandler(this, connectedSocket));
         }
     }
 
-    private boolean available(int port) {
-        ServerSocket ss = null;
-        DatagramSocket ds = null;
-        try {
-            ss = new ServerSocket(port);
-            ss.setReuseAddress(true);
-            ds = new DatagramSocket(port);
-            ds.setReuseAddress(true);
-            return true;
-        } catch (IOException e) {
-        } finally {
-            if (ds != null) {
-                ds.close();
-            }
-
-            if (ss != null) {
-                try {
-                    ss.close();
-                } catch (IOException e) {
-                /* should not be thrown */
-                }
-            }
-        }
-
-        return false;
+    public CachingHandler getCachingHandler() {
+        return cachingHandler;
     }
 }
